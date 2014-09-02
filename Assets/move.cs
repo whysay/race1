@@ -36,6 +36,7 @@ public class move : MonoBehaviour
     float steer = 0;
 
     public float speed = 0;
+    public float dotVal = 0.0f;
 
 
     void Start()
@@ -56,26 +57,58 @@ public class move : MonoBehaviour
         rigidbody.centerOfMass = center_of_mass;
     }
 
+    bool isCurve = false;
     void FixedUpdate()
     {
         current_speed = rigidbody.velocity.sqrMagnitude;
 
+        Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
+
+        Vector3 dirVec = centerPos - transform.position;
+        dirVec.y = 0.0f;
+        
+        Vector3 forwardVal = transform.forward;
+        forwardVal.y = 0.0f;
+        
+
         steer = 0.0f;
-        if (130.0f < transform.position.z)
+        if (isCurve == false && 15.0f < dirVec.magnitude)
+        {
+            isCurve = true;
+        }
+
+        if (isCurve)
+        {
             steer = -1.0f;
-        else if (transform.position.z < 100.0f)
-            steer = -1.0f;
+            forwardVal.Normalize();
+            dirVec.Normalize();
+            dotVal = Vector3.Dot(forwardVal, dirVec);
+            if (0.9f < dotVal)
+            {
+                steer = 0.0f;
+                isCurve = false;
+            }
+        }
+
+        
+        //if (130.0f < transform.position.z)
+        //    steer = -1.0f;
+        //else if (transform.position.z < 100.0f)
+        //    steer = -1.0f;
         //steer = Input.GetAxis("Horizontal");
         
 
         //forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
         forward = 1.0f;
-        back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
+        //back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
+        back = 0.0f;
 
         float rpm = FL_Wheel.rpm * 50;
 
         FL_Wheel.motorTorque = max_torque * motor;
         FR_Wheel.motorTorque = max_torque * motor;
+        //BL_Wheel.motorTorque = max_torque * motor;
+        //BR_Wheel.motorTorque = max_torque * motor;
 
         BL_Wheel.brakeTorque = max_brake * brake;
         BR_Wheel.brakeTorque = max_brake * brake;
@@ -105,11 +138,11 @@ public class move : MonoBehaviour
             motor = forward*10.0f;
             brake = -back;
 
-            if (speed >= 610)
-            {
-                speed = 600;
-                //motor = 0;
-            }
+            //if (speed >= 610)
+            //{
+            //    speed = 600;
+            //    //motor = 0;
+            //}
             if (current_speed >= 0 && forward == 0 && back == 0)
             {
                 brake = 2;
