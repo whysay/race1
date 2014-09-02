@@ -60,9 +60,16 @@ public class move : MonoBehaviour
     {
         current_speed = rigidbody.velocity.sqrMagnitude;
 
-        steer = Input.GetAxis("Horizontal");
+        steer = 0.0f;
+        if (130.0f < transform.position.z)
+            steer = -1.0f;
+        else if (transform.position.z < 100.0f)
+            steer = -1.0f;
+        //steer = Input.GetAxis("Horizontal");
+        
 
-        forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
+        //forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
+        forward = 1.0f;
         back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
 
         float rpm = FL_Wheel.rpm * 50;
