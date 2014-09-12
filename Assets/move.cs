@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class move : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class move : MonoBehaviour
     public float max_torque = 200;
     public float max_brake = 10;
 
-    float motor = 0;
+    public float motor = 0;
     float brake = 0;
 
     bool go_forward = true;
@@ -32,11 +33,16 @@ public class move : MonoBehaviour
     float forward = 0;
     float back = 0;
 
-    float current_speed = 0;
-    float steer = 0;
+    public float degree = 0;
+    public Vector3 crossVal = new Vector3();
+    public float current_speed = 0;
+    public float steer = 0;
 
     public float speed = 0;
     public float dotVal = 0.0f;
+
+    Vector3 [] m_targetPos = new Vector3[6];
+    public bool[] m_bArrived = { false, false, false, false, false, false };
 
 
     void Start()
@@ -55,6 +61,13 @@ public class move : MonoBehaviour
         BR_Mesh = transform.FindChild("SUV_wheel_rear_right").transform;
 
         rigidbody.centerOfMass = center_of_mass;
+
+        m_targetPos[0] = new Vector3(130.0f,0.0f,145.0f);
+        m_targetPos[1] = new Vector3(70.0f, 0.0f, 145.0f);
+        m_targetPos[2] = new Vector3(60.0f, 0.0f, 130.0f);
+        m_targetPos[3] = new Vector3(70.0f, 0.0f, 110.0f);
+        m_targetPos[4] = new Vector3(130.0f, 0.0f, 110.0f);
+        m_targetPos[5] = new Vector3(140.0f, 0.0f, 130.0f);
     }
 
     bool isCurve = false;
@@ -63,32 +76,88 @@ public class move : MonoBehaviour
         current_speed = rigidbody.velocity.sqrMagnitude;
 
         Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
-
         Vector3 dirVec = centerPos - transform.position;
-        dirVec.y = 0.0f;
-        
-        Vector3 forwardVal = transform.forward;
-        forwardVal.y = 0.0f;
-        
 
         steer = 0.0f;
-        if (isCurve == false && 15.0f < dirVec.magnitude)
+        bool isArrivedDest = true;
+        for (int i = 0; i < 6; ++i )
         {
-            isCurve = true;
-        }
-
-        if (isCurve)
-        {
-            steer = -1.0f;
-            forwardVal.Normalize();
-            dirVec.Normalize();
-            dotVal = Vector3.Dot(forwardVal, dirVec);
-            if (0.9f < dotVal)
+            if (m_bArrived[i] == false)
             {
-                steer = 0.0f;
-                isCurve = false;
+                isArrivedDest = false;
+
+                centerPos = m_targetPos[i];
+                dirVec = centerPos - transform.position;
+                dirVec.y = 0.0f;
+                if (dirVec.magnitude < 10.0f)
+                {
+                    m_bArrived[i] = true;
+                    break;
+                }
+
+                // 방향설정
+                Vector3 forwardVal = transform.forward;
+                forwardVal.y = 0.0f;
+                forwardVal.Normalize();
+                dirVec.Normalize();
+                dotVal = Vector3.Dot(forwardVal, dirVec);
+                degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
+                crossVal = Vector3.Cross(forwardVal, dirVec);
+
+                //steer = 1;
+                if (0.0f < crossVal.y)
+                    steer = 1 * Math.Max((degree/180.0f), 0.7f);
+                else
+                    steer = -1 * Math.Max((degree / 180.0f), 0.7f);
+                //if (crossVal.y < -0.2f)
+                    
+                
+
+                //if (dotVal < -0.5f)
+                //{
+                //    steer = -1;
+                //    //steer = (1+dotVal)* (-1.0f);
+                //}
+                //else
+                //{
+                //    steer = 1;
+                //    //steer = (1-dotVal);
+                //}
+                if (0.95f < dotVal)
+                {
+                    steer = 0.0f;
+                    //isCurve = false;
+                }
+
+                break;
             }
         }
+
+        if (isArrivedDest)
+        {
+            for (int i = 0; i < 6; ++i)
+                m_bArrived[i] = false;
+        }
+        
+
+        //steer = 0.0f;
+        //if (isCurve == false && 20.0f < dirVec.magnitude)
+        //{
+        //    isCurve = true;
+        //}
+
+        //if (isCurve)
+        //{
+        //    steer = -1.0f;
+        //    forwardVal.Normalize();
+        //    dirVec.Normalize();
+        //    dotVal = Vector3.Dot(forwardVal, dirVec);
+        //    if (0.9f < dotVal)
+        //    {
+        //        steer = 0.0f;
+        //        isCurve = false;
+        //    }
+        //}
 
         
         //if (130.0f < transform.position.z)
@@ -100,10 +169,12 @@ public class move : MonoBehaviour
 
         //forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
         forward = 1.0f;
+        if (isArrivedDest)
+            forward = 0.0f;
         //back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
         back = 0.0f;
 
-        float rpm = FL_Wheel.rpm * 50;
+        float rpm = FL_Wheel.rpm * 10;
 
         FL_Wheel.motorTorque = max_torque * motor;
         FR_Wheel.motorTorque = max_torque * motor;
@@ -135,7 +206,7 @@ public class move : MonoBehaviour
 
         if (go_forward == true)
         {
-            motor = forward*10.0f;
+            motor = forward*0.5f;
             brake = -back;
 
             //if (speed >= 610)
@@ -164,7 +235,8 @@ public class move : MonoBehaviour
             }
         }
 
-        speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm / 60);
+        //speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm / 60);
+        speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm * Time.deltaTime);
     }
 
 }
