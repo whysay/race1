@@ -86,7 +86,9 @@ public class move : MonoBehaviour
             {
                 isArrivedDest = false;
 
-                centerPos = m_targetPos[i];
+                GameObject curCube = GameObject.Find("Cube" + i);
+                //centerPos = m_targetPos[i];
+                centerPos = curCube.transform.position;
                 dirVec = centerPos - transform.position;
                 dirVec.y = 0.0f;
                 if (dirVec.magnitude < 10.0f)
@@ -105,10 +107,14 @@ public class move : MonoBehaviour
                 crossVal = Vector3.Cross(forwardVal, dirVec);
 
                 //steer = 1;
-                if (0.0f < crossVal.y)
-                    steer = 1 * Math.Max((degree/180.0f), 0.7f);
-                else
-                    steer = -1 * Math.Max((degree / 180.0f), 0.7f);
+                if (30 < degree)
+                {
+                    if (0.0f < crossVal.y)
+                        steer = 1 * Math.Max((degree / 180.0f), 0.5f);
+                    else
+                        steer = -1 * Math.Max((degree / 180.0f), 0.5f);
+                }
+
                 //if (crossVal.y < -0.2f)
                     
                 
@@ -206,7 +212,7 @@ public class move : MonoBehaviour
 
         if (go_forward == true)
         {
-            motor = forward*0.5f;
+            motor = forward*2.0f;
             brake = -back;
 
             //if (speed >= 610)
