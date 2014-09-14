@@ -22,7 +22,7 @@ public class move : MonoBehaviour
     public Vector3 center_of_mass;
 
     public float max_steer = 20;
-    public float max_torque = 200;
+    public float max_torque = 10;
     public float max_brake = 10;
 
     public float motor = 0;
@@ -107,12 +107,12 @@ public class move : MonoBehaviour
                 crossVal = Vector3.Cross(forwardVal, dirVec);
 
                 //steer = 1;
-                if (30 < degree)
+                if (10 < degree)
                 {
                     if (0.0f < crossVal.y)
-                        steer = 1 * Math.Max((degree / 180.0f), 0.5f);
+                        steer = 1 * Math.Max((degree / 180.0f), 0.6f);
                     else
-                        steer = -1 * Math.Max((degree / 180.0f), 0.5f);
+                        steer = -1 * Math.Max((degree / 180.0f), 0.6f);
                 }
 
                 //if (crossVal.y < -0.2f)
@@ -129,7 +129,7 @@ public class move : MonoBehaviour
                 //    steer = 1;
                 //    //steer = (1-dotVal);
                 //}
-                if (0.95f < dotVal)
+                if (0.97f < dotVal)
                 {
                     steer = 0.0f;
                     //isCurve = false;
@@ -212,14 +212,15 @@ public class move : MonoBehaviour
 
         if (go_forward == true)
         {
-            motor = forward*2.0f;
+            motor = forward * 1.0f * (2.0f - degree/180.0f);
             brake = -back;
 
-            //if (speed >= 610)
-            //{
-            //    speed = 600;
-            //    //motor = 0;
-            //}
+            if (speed >= 610)
+            {
+                //speed = 600;
+                //motor = 0;
+                motor *= 0.2f;
+            }
             if (current_speed >= 0 && forward == 0 && back == 0)
             {
                 brake = 2;
