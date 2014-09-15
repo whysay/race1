@@ -47,6 +47,7 @@ public class move : MonoBehaviour
 
     void Start()
     {
+        Physics.gravity = new Vector3(0.0f, -30.0f, 0.0f);
         FL_Wheel = transform.FindChild("fl_col").transform.collider as WheelCollider;
         FR_Wheel = transform.FindChild("fr_col").transform.collider as WheelCollider;
         BL_Wheel = transform.FindChild("rl_col").transform.collider as WheelCollider;
@@ -215,12 +216,12 @@ public class move : MonoBehaviour
             motor = forward * 1.0f * (2.0f - degree/180.0f);
             brake = -back;
 
-            if (speed >= 610)
-            {
-                //speed = 600;
-                //motor = 0;
-                motor *= 0.2f;
-            }
+            //if (speed >= 610)
+            //{
+            //    //speed = 600;
+            //    //motor = 0;
+            //    //motor *= 0.2f;
+            //}
             if (current_speed >= 0 && forward == 0 && back == 0)
             {
                 brake = 2;
