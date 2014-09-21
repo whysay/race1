@@ -76,74 +76,77 @@ public class move : MonoBehaviour
     {
         current_speed = rigidbody.velocity.sqrMagnitude;
 
-        Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
-        Vector3 dirVec = centerPos - transform.position;
-
-        steer = 0.0f;
         bool isArrivedDest = true;
-        for (int i = 0; i < 6; ++i )
+        if (0.0f < current_speed)
         {
-            if (m_bArrived[i] == false)
-            {
-                isArrivedDest = false;
+            Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
+            Vector3 dirVec = centerPos - transform.position;
 
-                GameObject curCube = GameObject.Find("Cube" + i);
-                //centerPos = m_targetPos[i];
-                centerPos = curCube.transform.position;
-                dirVec = centerPos - transform.position;
-                dirVec.y = 0.0f;
-                if (dirVec.magnitude < 10.0f)
+            steer = 0.0f;
+            for (int i = 0; i < 6; ++i)
+            {
+                if (m_bArrived[i] == false)
                 {
-                    m_bArrived[i] = true;
+                    isArrivedDest = false;
+
+                    GameObject curCube = GameObject.Find("Cube" + i);
+                    //centerPos = m_targetPos[i];
+                    centerPos = curCube.transform.position;
+                    dirVec = centerPos - transform.position;
+                    dirVec.y = 0.0f;
+                    if (dirVec.magnitude < 10.0f)
+                    {
+                        m_bArrived[i] = true;
+                        break;
+                    }
+
+                    // 방향설정
+                    Vector3 forwardVal = transform.forward;
+                    forwardVal.y = 0.0f;
+                    forwardVal.Normalize();
+                    dirVec.Normalize();
+                    dotVal = Vector3.Dot(forwardVal, dirVec);
+                    degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
+                    crossVal = Vector3.Cross(forwardVal, dirVec);
+
+                    //steer = 1;
+                    if (10 < degree)
+                    {
+                        if (0.0f < crossVal.y)
+                            steer = 1 * Math.Max((degree / 180.0f), 0.6f);
+                        else
+                            steer = -1 * Math.Max((degree / 180.0f), 0.6f);
+                    }
+
+                    //if (crossVal.y < -0.2f)
+
+
+
+                    //if (dotVal < -0.5f)
+                    //{
+                    //    steer = -1;
+                    //    //steer = (1+dotVal)* (-1.0f);
+                    //}
+                    //else
+                    //{
+                    //    steer = 1;
+                    //    //steer = (1-dotVal);
+                    //}
+                    if (0.97f < dotVal)
+                    {
+                        steer = 0.0f;
+                        //isCurve = false;
+                    }
+
                     break;
                 }
-
-                // 방향설정
-                Vector3 forwardVal = transform.forward;
-                forwardVal.y = 0.0f;
-                forwardVal.Normalize();
-                dirVec.Normalize();
-                dotVal = Vector3.Dot(forwardVal, dirVec);
-                degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
-                crossVal = Vector3.Cross(forwardVal, dirVec);
-
-                //steer = 1;
-                if (10 < degree)
-                {
-                    if (0.0f < crossVal.y)
-                        steer = 1 * Math.Max((degree / 180.0f), 0.6f);
-                    else
-                        steer = -1 * Math.Max((degree / 180.0f), 0.6f);
-                }
-
-                //if (crossVal.y < -0.2f)
-                    
-                
-
-                //if (dotVal < -0.5f)
-                //{
-                //    steer = -1;
-                //    //steer = (1+dotVal)* (-1.0f);
-                //}
-                //else
-                //{
-                //    steer = 1;
-                //    //steer = (1-dotVal);
-                //}
-                if (0.97f < dotVal)
-                {
-                    steer = 0.0f;
-                    //isCurve = false;
-                }
-
-                break;
             }
-        }
 
-        if (isArrivedDest)
-        {
-            for (int i = 0; i < 6; ++i)
-                m_bArrived[i] = false;
+            if (isArrivedDest)
+            {
+                for (int i = 0; i < 6; ++i)
+                    m_bArrived[i] = false;
+            }
         }
         
 
@@ -176,8 +179,8 @@ public class move : MonoBehaviour
 
         //forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
         forward = 1.0f;
-        if (isArrivedDest)
-            forward = 0.0f;
+        //if (isArrivedDest)
+        //    forward = 0.0f;
         //back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
         back = 0.0f;
 
@@ -203,15 +206,15 @@ public class move : MonoBehaviour
         BR_Mesh.Rotate(rpm * Time.deltaTime, 0, 0);
 
 
-        if (current_speed <= 0.1f)
-        {
-            if (back < 0)
-                go_forward = false;
-            if (forward > 0)
-                go_forward = true;
-        }
+        //if (current_speed <= 0.1f)
+        //{
+        //    if (back < 0)
+        //        go_forward = false;
+        //    if (forward > 0)
+        //        go_forward = true;
+        //}
 
-        if (go_forward == true)
+        //if (go_forward == true)
         {
             motor = forward * 1.0f * (2.0f - degree/180.0f);
             brake = -back;
@@ -227,24 +230,67 @@ public class move : MonoBehaviour
                 brake = 2;
             }
         }
-        else if (go_forward == false)
-        {
-            //motor = back;
-            brake = 0.5f;
+        //else if (go_forward == false)
+        //{
+        //    //motor = back;
+        //    brake = 0.5f;
 
-            if (speed >= 21)
-            {
-                speed = 20;
-                motor -= 0.5f;
-            }
-            if (current_speed >= 0 && forward == 0 && back == 0)
-            {
-                brake = 1;
-            }
-        }
+        //    if (speed >= 21)
+        //    {
+        //        speed = 20;
+        //        motor -= 0.5f;
+        //    }
+        //    if (current_speed >= 0 && forward == 0 && back == 0)
+        //    {
+        //        brake = 1;
+        //    }
+        //}
 
         //speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm / 60);
         speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm * Time.deltaTime);
     }
+
+    //void OnTriggerEnter(Collider obj)
+    //{
+    //    Debug.Log("collide!!!!\n");
+    //    //Vector3 forwardVal = transform.forward;
+    //    //forwardVal.x += 100.0f;
+    //    //transform.forward = forwardVal;
+
+    //    //centerPos = m_targetPos[i];
+    //    Vector3 centerPos = obj.transform.position;
+    //    Vector3 dirVec = centerPos - transform.position;
+    //    dirVec.y = 0.0f;
+
+    //    // 방향설정
+    //    Vector3 forwardVal = transform.forward;
+    //    forwardVal.y = 0.0f;
+    //    forwardVal.Normalize();
+    //    dirVec.Normalize();
+    //    dotVal = Vector3.Dot(forwardVal, dirVec);
+    //    degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
+    //    crossVal = Vector3.Cross(forwardVal, dirVec);
+
+    //    //steer = 1;
+    //    //if (10 < degree)
+    //    //{
+    //        if (0.0f < crossVal.y)
+    //        {
+    //            //Vector3 tmpForwardVal = transform.forward;
+    //            //tmpForwardVal.x -= 30.0f;
+    //            //transform.forward = tmpForwardVal;
+    //            transform.Rotate(0.0f, -30.0f, 0.0f);
+    //            Debug.Log("collide ++++ \n");
+    //        }
+    //        else
+    //        {
+    //            //Vector3 tmpForwardVal = transform.forward;
+    //            //tmpForwardVal.x += 30.0f;
+    //            //transform.forward = tmpForwardVal;
+    //            transform.Rotate(0.0f, 30.0f, 0.0f);
+    //            Debug.Log("collide ---- \n");
+    //        }
+    //    //}
+    //}
 
 }
