@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class move : MonoBehaviour
@@ -44,8 +45,13 @@ public class move : MonoBehaviour
     public float speed = 0;
     public float dotVal = 0.0f;
 
+    public GameObject m_ball;
+    public float m_ballCreateTime = 0;
+
     Vector3 [] m_targetPos = new Vector3[6];
     public bool[] m_bArrived = { false, false, false, false, false, false };
+
+    public List<GameObject> m_listObj = new List<GameObject>();
 
 
     void Start()
@@ -77,6 +83,25 @@ public class move : MonoBehaviour
     //bool isCurve = false;
     void FixedUpdate()
     {
+        m_ballCreateTime += Time.deltaTime;
+        if (1.0f < m_ballCreateTime)
+        {
+            m_ballCreateTime = 0.0f;
+            GameObject cloneBall = (GameObject)Instantiate(m_ball);
+            m_listObj.Add(cloneBall);
+            if (10 < m_listObj.Count)
+            {
+                GameObject[] arr = m_listObj.ToArray();
+                Destroy(arr[0]);
+                m_listObj.RemoveAt(0);
+            }
+                
+            //m_ball.transform.position = transform.position;
+            Vector3 curPos = transform.position;
+            curPos.y = 10.0f;
+            cloneBall.transform.position = curPos;
+            //cloneBall.transform.Translate(0.0f, 10.0f, 0,0f);
+        }
         current_speed = rigidbody.velocity.sqrMagnitude;
 
         bool isArrivedDest = true;
