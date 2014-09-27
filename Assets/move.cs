@@ -21,14 +21,17 @@ public class move : MonoBehaviour
 
     public Vector3 center_of_mass;
 
-    public float max_steer = 20;
+    public float max_steer = 50;
+    public float m_curSteer = 0;
+
     public float max_torque = 10;
     public float max_brake = 10;
 
     public float motor = 0;
+    public float m_rpm = 0;
     float brake = 0;
 
-    bool go_forward = true;
+    //bool go_forward = true;
 
     float forward = 0;
     float back = 0;
@@ -71,7 +74,7 @@ public class move : MonoBehaviour
         m_targetPos[5] = new Vector3(140.0f, 0.0f, 130.0f);
     }
 
-    bool isCurve = false;
+    //bool isCurve = false;
     void FixedUpdate()
     {
         current_speed = rigidbody.velocity.sqrMagnitude;
@@ -109,33 +112,39 @@ public class move : MonoBehaviour
                     degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
                     crossVal = Vector3.Cross(forwardVal, dirVec);
 
-                    //steer = 1;
+                    //목표지점과 각도가 10도이상 차이나면
                     if (10 < degree)
                     {
+                        // 외적값에 따라 왼쪽인지 오른쪽인지 처리
                         if (0.0f < crossVal.y)
-                            steer = 1 * Math.Max((degree / 180.0f), 0.6f);
+                        {
+                            steer = 1 * Math.Max((degree / 180.0f), 0.9f);
+                        }
                         else
-                            steer = -1 * Math.Max((degree / 180.0f), 0.6f);
+                        {
+                            steer = -1 * Math.Max((degree / 180.0f), 0.9f);
+                        }
+
+                        m_curSteer += Time.deltaTime*steer*30.0f;
+                        if (70.0f < m_curSteer)
+                            m_curSteer = 70.0f;
+                        else if (m_curSteer < -70.0f)
+                            m_curSteer = -70.0f;
+                            
                     }
 
-                    //if (crossVal.y < -0.2f)
-
-
-
-                    //if (dotVal < -0.5f)
-                    //{
-                    //    steer = -1;
-                    //    //steer = (1+dotVal)* (-1.0f);
-                    //}
-                    //else
-                    //{
-                    //    steer = 1;
-                    //    //steer = (1-dotVal);
-                    //}
+                    // 목표지점과 거의 직선 방향이 되었으면
                     if (0.97f < dotVal)
                     {
-                        steer = 0.0f;
-                        //isCurve = false;
+                        m_curSteer = 0.0f;
+                        //if (m_curSteer < 0.0f)
+                        //{
+                        //    m_curSteer += Time.deltaTime*10.0f;
+                        //}
+                        //else
+                        //{
+                        //    m_curSteer -= Time.deltaTime*10.0f;
+                        //}
                     }
 
                     break;
@@ -184,7 +193,12 @@ public class move : MonoBehaviour
         //back = Mathf.Clamp(Input.GetAxis("Vertical"), -1, 0);
         back = 0.0f;
 
-        float rpm = FL_Wheel.rpm * 10;
+        m_rpm = FL_Wheel.rpm;
+        if (400.0f < m_rpm)
+        {
+            m_rpm = 400.0f;
+            motor = 0.0f;
+        }
 
         FL_Wheel.motorTorque = max_torque * motor;
         FR_Wheel.motorTorque = max_torque * motor;
@@ -194,16 +208,20 @@ public class move : MonoBehaviour
         BL_Wheel.brakeTorque = max_brake * brake;
         BR_Wheel.brakeTorque = max_brake * brake;
 
+        // 커브 적용
+        FL_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        FR_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        FL_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        FR_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        //FL_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
+        //FR_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
+        //FL_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
+        //FR_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
 
-        FL_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
-        FR_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
-        FL_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
-        FR_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
-
-        FL_Mesh.Rotate(rpm * Time.deltaTime, 0, 0);
-        FR_Mesh.Rotate(rpm * Time.deltaTime, 0, 0);
-        BL_Mesh.Rotate(rpm * Time.deltaTime, 0, 0);
-        BR_Mesh.Rotate(rpm * Time.deltaTime, 0, 0);
+        FL_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
+        FR_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
+        BL_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
+        BR_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
 
 
         //if (current_speed <= 0.1f)
