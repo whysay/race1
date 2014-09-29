@@ -46,7 +46,9 @@ public class move : MonoBehaviour
     public float dotVal = 0.0f;
 
     public GameObject m_ball;
+    public GUITexture m_directionUi;
     public float m_ballCreateTime = 0;
+    public Vector3 m_screenPos = new Vector3();
 
     Vector3 [] m_targetPos = new Vector3[6];
     public bool[] m_bArrived = { false, false, false, false, false, false };
@@ -83,6 +85,12 @@ public class move : MonoBehaviour
     //bool isCurve = false;
     void FixedUpdate()
     {
+        // 차량의 위치를 화면의 2D좌표료 변환해 해당 위치에 UI표기
+        m_screenPos = GameObject.Find("Main Camera").camera.WorldToScreenPoint(transform.position);
+        float xPos = (m_screenPos.x-20.0f)/Screen.width;
+        float yPos = (m_screenPos.y+40.0f)/Screen.height;
+        m_directionUi.transform.position = new Vector3(xPos, yPos);
+
         m_ballCreateTime += Time.deltaTime;
         if (1.0f < m_ballCreateTime)
         {
