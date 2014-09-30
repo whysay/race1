@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class move : MonoBehaviour
+public class move2 : MonoBehaviour
 {
 
 
@@ -49,9 +49,8 @@ public class move : MonoBehaviour
     public GUITexture m_directionUi;
     public float m_ballCreateTime = 0;
     public Vector3 m_screenPos = new Vector3();
-    public Vector3 m_worldPosDirUi = new Vector3();
 
-    Vector3 [] m_targetPos = new Vector3[6];
+    Vector3[] m_targetPos = new Vector3[6];
     public bool[] m_bArrived = { false, false, false, false, false, false };
 
     public List<GameObject> m_listObj = new List<GameObject>();
@@ -75,7 +74,7 @@ public class move : MonoBehaviour
 
         rigidbody.centerOfMass = center_of_mass;
 
-        m_targetPos[0] = new Vector3(130.0f,0.0f,145.0f);
+        m_targetPos[0] = new Vector3(130.0f, 0.0f, 145.0f);
         m_targetPos[1] = new Vector3(70.0f, 0.0f, 145.0f);
         m_targetPos[2] = new Vector3(60.0f, 0.0f, 130.0f);
         m_targetPos[3] = new Vector3(70.0f, 0.0f, 110.0f);
@@ -86,55 +85,11 @@ public class move : MonoBehaviour
     //bool isCurve = false;
     void FixedUpdate()
     {
-
-        // 현재 터치되어 있는 카운트 가져오기
-        int cnt = Input.touchCount;
- 
-//      Debug.Log( "touch Cnt : " + cnt );
-        // 동시에 여러곳을 터치 할 수 있기 때문.
-        //for( int i=0; i<cnt; ++i )
-        //if (Input.GetMouseButtonDown(0))
-        {
-            // i 번째로 터치된 값 이라고 보면 된다.
-            //Touch touch = Input.GetTouch(i);
-            Vector3 screenPos = Input.mousePosition;
-            Vector3 tpos = Input.mousePosition;
-
-            // 터치한 위치로 화살표 이동
-            //m_worldPosDirUi = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            float hitdist = 0.0f;
-            Plane playerPlane = new Plane(Vector3.up, transform.position);
-            if (playerPlane.Raycast(ray, out hitdist))
-            {
-                m_worldPosDirUi = ray.GetPoint(hitdist);
-            }
-
-
-            float xPos = (tpos.x - 20.0f) / Screen.width;
-            float yPos = (tpos.y + 40.0f) / Screen.height;
-            m_directionUi.transform.position = new Vector3(xPos, yPos);
- 
-            //// 조금 더 디테일하게!
-            //if( touch.phase == TouchPhase.Began )
-            //{
-            //    Debug.Log("시작점 : (" + i + ") : x = " + tpos.x + ", y = " + tpos.y);
-            //}
-            //else if( touch.phase == TouchPhase.Ended )
-            //{
-            //    Debug.Log("끝점 : (" + i + ") : x = " + tpos.x + ", y = " + tpos.y);
-            //}
-            //else if( touch.phase == TouchPhase.Moved )
-            //{
-            //    Debug.Log("이동중 : (" + i + ") : x = " + tpos.x + ", y = " + tpos.y);
-            //}
-        }
-
         // 차량의 위치를 화면의 2D좌표료 변환해 해당 위치에 UI표기
-        //m_screenPos = GameObject.Find("Main Camera").camera.WorldToScreenPoint(transform.position);
-        //float xPos = (m_screenPos.x-20.0f)/Screen.width;
-        //float yPos = (m_screenPos.y+40.0f)/Screen.height;
-        //m_directionUi.transform.position = new Vector3(xPos, yPos);
+        m_screenPos = GameObject.Find("Main Camera").camera.WorldToScreenPoint(transform.position);
+        float xPos = (m_screenPos.x - 20.0f) / Screen.width;
+        float yPos = (m_screenPos.y + 40.0f) / Screen.height;
+        m_directionUi.transform.position = new Vector3(xPos, yPos);
 
         m_ballCreateTime += Time.deltaTime;
         if (1.0f < m_ballCreateTime)
@@ -148,37 +103,37 @@ public class move : MonoBehaviour
                 Destroy(arr[0]);
                 m_listObj.RemoveAt(0);
             }
-                
+
             //m_ball.transform.position = transform.position;
             Vector3 curPos = transform.position;
-            curPos.y += 4.0f;
+            curPos.y = 10.0f;
             cloneBall.transform.position = curPos;
-            cloneBall.rigidbody.AddForce(transform.forward * 2000.0f);
             //cloneBall.transform.Translate(0.0f, 10.0f, 0,0f);
         }
         current_speed = rigidbody.velocity.sqrMagnitude;
 
+        bool isArrivedDest = true;
         if (0.0f < current_speed)
         {
-            //Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
-            Vector3 dirVec = m_worldPosDirUi - transform.position;
+            Vector3 centerPos = new Vector3(120.0f, 0.0f, 120.0f);
+            Vector3 dirVec = centerPos - transform.position;
 
             steer = 0.0f;
-            //for (int i = 0; i < 6; ++i)
-            //{
-            //    if (m_bArrived[i] == false)
-            //    {
-                    //isArrivedDest = false;
+            for (int i = 0; i < 6; ++i)
+            {
+                if (m_bArrived[i] == false)
+                {
+                    isArrivedDest = false;
 
-                    //GameObject curCube = GameObject.Find("Cube" + i);
+                    GameObject curCube = GameObject.Find("Cube" + i);
                     //centerPos = m_targetPos[i];
-                    //centerPos = curCube.transform.position;
-                    //dirVec = centerPos - transform.position;
+                    centerPos = curCube.transform.position;
+                    dirVec = centerPos - transform.position;
                     dirVec.y = 0.0f;
                     if (dirVec.magnitude < 10.0f)
                     {
-                        //m_bArrived[i] = true;
-                        //break;
+                        m_bArrived[i] = true;
+                        break;
                     }
 
                     // 방향설정
@@ -203,12 +158,12 @@ public class move : MonoBehaviour
                             steer = -1 * Math.Max((degree / 180.0f), 0.9f);
                         }
 
-                        m_curSteer += Time.deltaTime*steer*30.0f;
+                        m_curSteer += Time.deltaTime * steer * 30.0f;
                         if (70.0f < m_curSteer)
                             m_curSteer = 70.0f;
                         else if (m_curSteer < -70.0f)
                             m_curSteer = -70.0f;
-                            
+
                     }
 
                     // 목표지점과 거의 직선 방향이 되었으면
@@ -225,11 +180,17 @@ public class move : MonoBehaviour
                         //}
                     }
 
-                    //break;
-            //    }
-            //}
+                    break;
+                }
+            }
+
+            if (isArrivedDest)
+            {
+                for (int i = 0; i < 6; ++i)
+                    m_bArrived[i] = false;
+            }
         }
-        
+
 
         //steer = 0.0f;
         //if (isCurve == false && 20.0f < dirVec.magnitude)
@@ -250,13 +211,13 @@ public class move : MonoBehaviour
         //    }
         //}
 
-        
+
         //if (130.0f < transform.position.z)
         //    steer = -1.0f;
         //else if (transform.position.z < 100.0f)
         //    steer = -1.0f;
         //steer = Input.GetAxis("Horizontal");
-        
+
 
         //forward = Mathf.Clamp(Input.GetAxis("Vertical"), 0, 1);
         forward = 1.0f;
@@ -306,7 +267,7 @@ public class move : MonoBehaviour
 
         //if (go_forward == true)
         {
-            motor = forward * 1.0f * (2.0f - degree/180.0f);
+            motor = forward * 1.0f * (2.0f - degree / 180.0f);
             brake = -back;
 
             //if (speed >= 610)
