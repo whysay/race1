@@ -92,12 +92,12 @@ public class move2 : MonoBehaviour
         m_directionUi.transform.position = new Vector3(xPos, yPos);
 
         m_ballCreateTime += Time.deltaTime;
-        if (1.0f < m_ballCreateTime)
+        if (3.0f < m_ballCreateTime)
         {
             m_ballCreateTime = 0.0f;
             GameObject cloneBall = (GameObject)Instantiate(m_ball);
             m_listObj.Add(cloneBall);
-            if (10 < m_listObj.Count)
+            if (3 < m_listObj.Count)
             {
                 GameObject[] arr = m_listObj.ToArray();
                 Destroy(arr[0]);
@@ -296,52 +296,8 @@ public class move2 : MonoBehaviour
         //        brake = 1;
         //    }
         //}
-
-        //speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm / 60);
+        //motor = motor * -1;
         speed = Mathf.Abs(0.5120276f * 20 * 3.14159f * FL_Wheel.rpm * Time.deltaTime);
     }
-
-    //void OnTriggerEnter(Collider obj)
-    //{
-    //    Debug.Log("collide!!!!\n");
-    //    //Vector3 forwardVal = transform.forward;
-    //    //forwardVal.x += 100.0f;
-    //    //transform.forward = forwardVal;
-
-    //    //centerPos = m_targetPos[i];
-    //    Vector3 centerPos = obj.transform.position;
-    //    Vector3 dirVec = centerPos - transform.position;
-    //    dirVec.y = 0.0f;
-
-    //    // 방향설정
-    //    Vector3 forwardVal = transform.forward;
-    //    forwardVal.y = 0.0f;
-    //    forwardVal.Normalize();
-    //    dirVec.Normalize();
-    //    dotVal = Vector3.Dot(forwardVal, dirVec);
-    //    degree = (float)Math.Acos(dotVal) * (180 / 3.141592f);
-    //    crossVal = Vector3.Cross(forwardVal, dirVec);
-
-    //    //steer = 1;
-    //    //if (10 < degree)
-    //    //{
-    //        if (0.0f < crossVal.y)
-    //        {
-    //            //Vector3 tmpForwardVal = transform.forward;
-    //            //tmpForwardVal.x -= 30.0f;
-    //            //transform.forward = tmpForwardVal;
-    //            transform.Rotate(0.0f, -30.0f, 0.0f);
-    //            Debug.Log("collide ++++ \n");
-    //        }
-    //        else
-    //        {
-    //            //Vector3 tmpForwardVal = transform.forward;
-    //            //tmpForwardVal.x += 30.0f;
-    //            //transform.forward = tmpForwardVal;
-    //            transform.Rotate(0.0f, 30.0f, 0.0f);
-    //            Debug.Log("collide ---- \n");
-    //        }
-    //    //}
-    //}
 
 }

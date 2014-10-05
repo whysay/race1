@@ -137,12 +137,12 @@ public class move : MonoBehaviour
         //m_directionUi.transform.position = new Vector3(xPos, yPos);
 
         m_ballCreateTime += Time.deltaTime;
-        if (1.0f < m_ballCreateTime)
+        if (2.0f < m_ballCreateTime)
         {
             m_ballCreateTime = 0.0f;
             GameObject cloneBall = (GameObject)Instantiate(m_ball);
             m_listObj.Add(cloneBall);
-            if (10 < m_listObj.Count)
+            if (5 < m_listObj.Count)
             {
                 GameObject[] arr = m_listObj.ToArray();
                 Destroy(arr[0]);
