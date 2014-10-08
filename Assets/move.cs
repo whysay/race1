@@ -59,6 +59,8 @@ public class move : MonoBehaviour
 
     void Start()
     {
+        //절전모드 끄기
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Physics.gravity = new Vector3(0.0f, -30.0f, 0.0f);
         FL_Wheel = transform.FindChild("fl_col").transform.collider as WheelCollider;
         FR_Wheel = transform.FindChild("fr_col").transform.collider as WheelCollider;
