@@ -12,8 +12,8 @@ public class move2 : MonoBehaviour
     WheelCollider BL_Wheel;
     WheelCollider BR_Wheel;
 
-    Transform FL_Pos;
-    Transform FR_Pos;
+    Transform FL_col_Pos;
+    Transform FR_col_Pos;
 
     Transform FL_Mesh;
     Transform FR_Mesh;
@@ -64,8 +64,8 @@ public class move2 : MonoBehaviour
         BL_Wheel = transform.FindChild("rl_col").transform.collider as WheelCollider;
         BR_Wheel = transform.FindChild("rr_col").transform.collider as WheelCollider;
 
-        FL_Pos = transform.FindChild("fl_col").transform;
-        FR_Pos = transform.FindChild("fr_col").transform;
+        FL_col_Pos = transform.FindChild("fl_col").transform;
+        FR_col_Pos = transform.FindChild("fr_col").transform;
 
         FL_Mesh = transform.FindChild("fl_mesh").transform;
         FR_Mesh = transform.FindChild("fr_mesh").transform;
@@ -84,6 +84,7 @@ public class move2 : MonoBehaviour
 
     Vector3 m_beforePos = new Vector3();
     float m_holdStartTime = 0.0f;
+    float m_rotateWheelRad = 0.0f;
     void FixedUpdate()
     {
         // 같은자리에 5초이상 홀딩되면 이전 좌표로 이동시켜줌.
@@ -270,17 +271,18 @@ public class move2 : MonoBehaviour
         BR_Wheel.brakeTorque = max_brake * brake;
 
         // 커브 적용
-        FL_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
-        FR_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
-        FL_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
-        FR_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        m_rotateWheelRad += m_rpm * Time.deltaTime;
+        FL_Mesh.localEulerAngles = new Vector3(m_rotateWheelRad, m_curSteer, 0);
+        FR_Mesh.localEulerAngles = new Vector3(m_rotateWheelRad, m_curSteer, 0);
+        FL_col_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        FR_col_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
         //FL_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
         //FR_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
         //FL_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
         //FR_Pos.localEulerAngles = new Vector3(0, steer * max_steer, 0);
 
-        FL_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
-        FR_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
+        //FL_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
+        //FR_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
         BL_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
         BR_Mesh.Rotate(m_rpm * Time.deltaTime, 0, 0);
 

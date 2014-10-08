@@ -84,6 +84,7 @@ public class move : MonoBehaviour
     }
 
     //bool isCurve = false;
+    float m_rotateWheelRad = 0.0f;
     void FixedUpdate()
     {
 
@@ -153,7 +154,9 @@ public class move : MonoBehaviour
             Vector3 curPos = transform.position;
             curPos.y += 4.0f;
             cloneBall.transform.position = curPos;
-            cloneBall.rigidbody.AddForce(transform.forward * 2000.0f);
+            Vector3 shootDir = transform.forward;
+            shootDir.y += 0.5f;
+            cloneBall.rigidbody.AddForce(shootDir * 500.0f);
             //cloneBall.transform.Translate(0.0f, 10.0f, 0,0f);
         }
         current_speed = rigidbody.velocity.sqrMagnitude;
@@ -281,8 +284,9 @@ public class move : MonoBehaviour
         BR_Wheel.brakeTorque = max_brake * brake;
 
         // 커브 적용
-        FL_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
-        FR_Mesh.localEulerAngles = new Vector3(0, m_curSteer, 0);
+        m_rotateWheelRad += m_rpm * Time.deltaTime;
+        FL_Mesh.localEulerAngles = new Vector3(m_rotateWheelRad, m_curSteer, 0);
+        FR_Mesh.localEulerAngles = new Vector3(m_rotateWheelRad, m_curSteer, 0);
         FL_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
         FR_Pos.localEulerAngles = new Vector3(0, m_curSteer, 0);
         //FL_Mesh.localEulerAngles = new Vector3(0, steer * max_steer, 0);
