@@ -82,9 +82,22 @@ public class move2 : MonoBehaviour
         m_targetPos[5] = new Vector3(140.0f, 0.0f, 130.0f);
     }
 
-    //bool isCurve = false;
+    Vector3 m_beforePos = new Vector3();
+    float m_holdStartTime = 0.0f;
     void FixedUpdate()
     {
+        // 같은자리에 5초이상 홀딩되면 이전 좌표로 이동시켜줌.
+
+        if ((m_beforePos - transform.position).magnitude < 0.1f)
+        {
+            if (m_holdStartTime == 0.0f)
+                m_holdStartTime = Time.time;
+        }
+        else
+        {
+            m_holdStartTime = 0.0f;
+            m_beforePos = transform.position;
+        }
         // 차량의 위치를 화면의 2D좌표료 변환해 해당 위치에 UI표기
         m_screenPos = GameObject.Find("Main Camera").camera.WorldToScreenPoint(transform.position);
         float xPos = (m_screenPos.x - 20.0f) / Screen.width;
@@ -95,20 +108,18 @@ public class move2 : MonoBehaviour
         if (3.0f < m_ballCreateTime)
         {
             m_ballCreateTime = 0.0f;
-            GameObject cloneBall = (GameObject)Instantiate(m_ball);
-            m_listObj.Add(cloneBall);
-            if (3 < m_listObj.Count)
-            {
-                GameObject[] arr = m_listObj.ToArray();
-                Destroy(arr[0]);
-                m_listObj.RemoveAt(0);
-            }
+            //GameObject cloneBall = (GameObject)Instantiate(m_ball);
+            //m_listObj.Add(cloneBall);
+            //if (3 < m_listObj.Count)
+            //{
+            //    GameObject[] arr = m_listObj.ToArray();
+            //    Destroy(arr[0]);
+            //    m_listObj.RemoveAt(0);
+            //}
 
-            //m_ball.transform.position = transform.position;
-            Vector3 curPos = transform.position;
-            curPos.y = 10.0f;
-            cloneBall.transform.position = curPos;
-            //cloneBall.transform.Translate(0.0f, 10.0f, 0,0f);
+            //Vector3 curPos = transform.position;
+            //curPos.y = 10.0f;
+            //cloneBall.transform.position = curPos;
         }
         current_speed = rigidbody.velocity.sqrMagnitude;
 
@@ -129,7 +140,24 @@ public class move2 : MonoBehaviour
                     //centerPos = m_targetPos[i];
                     centerPos = curCube.transform.position;
                     dirVec = centerPos - transform.position;
+
+                    if (100.0f < dirVec.magnitude
+                        || (m_holdStartTime != 0.0f && m_holdStartTime + 5 < Time.time))
+                    {
+                        if (0 < i)
+                            curCube = GameObject.Find("Cube" + (i-1));
+                        else
+                            curCube = GameObject.Find("Cube" + 5);
+
+                        Vector3 beforeCube = curCube.transform.position;
+                        beforeCube.y += 5;
+                        transform.position = beforeCube;
+
+                        break;
+                    }
+
                     dirVec.y = 0.0f;
+
                     if (dirVec.magnitude < 10.0f)
                     {
                         m_bArrived[i] = true;
@@ -159,10 +187,10 @@ public class move2 : MonoBehaviour
                         }
 
                         m_curSteer += Time.deltaTime * steer * 30.0f;
-                        if (70.0f < m_curSteer)
-                            m_curSteer = 70.0f;
-                        else if (m_curSteer < -70.0f)
-                            m_curSteer = -70.0f;
+                        if (90.0f < m_curSteer)
+                            m_curSteer = 90.0f;
+                        else if (m_curSteer < -90.0f)
+                            m_curSteer = -90.0f;
 
                     }
 
@@ -170,14 +198,14 @@ public class move2 : MonoBehaviour
                     if (0.97f < dotVal)
                     {
                         m_curSteer = 0.0f;
-                        //if (m_curSteer < 0.0f)
-                        //{
-                        //    m_curSteer += Time.deltaTime*10.0f;
-                        //}
-                        //else
-                        //{
-                        //    m_curSteer -= Time.deltaTime*10.0f;
-                        //}
+                        if (m_curSteer < 0.0f)
+                        {
+                            m_curSteer += Time.deltaTime * 50.0f;
+                        }
+                        else
+                        {
+                            m_curSteer -= Time.deltaTime * 50.0f;
+                        }
                     }
 
                     break;
