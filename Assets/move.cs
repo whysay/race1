@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.ServiceModel;
 
 public class move : MonoBehaviour
 {
@@ -55,6 +56,7 @@ public class move : MonoBehaviour
     public bool[] m_bArrived = { false, false, false, false, false, false };
 
     public List<GameObject> m_listObj = new List<GameObject>();
+    HelloWorldServiceClient m_client;
 
 
     void Start()
@@ -83,6 +85,10 @@ public class move : MonoBehaviour
         m_targetPos[3] = new Vector3(70.0f, 0.0f, 110.0f);
         m_targetPos[4] = new Vector3(130.0f, 0.0f, 110.0f);
         m_targetPos[5] = new Vector3(140.0f, 0.0f, 130.0f);
+        m_client = new HelloWorldServiceClient(new BasicHttpBinding(), new EndpointAddress(@"http://localhost:1054/HostDevServer/HelloWorldService.svc?singleWsdl"));
+        var log = m_client.GetMessage("dfj");
+        Debug.Log(log);
+
     }
 
     //bool isCurve = false;
@@ -142,6 +148,8 @@ public class move : MonoBehaviour
         m_ballCreateTime += Time.deltaTime;
         if (2.0f < m_ballCreateTime)
         {
+            var log = m_client.GetTestContact("dfj");
+            Debug.Log(log.Phone);
             m_ballCreateTime = 0.0f;
             GameObject cloneBall = (GameObject)Instantiate(m_ball);
             m_listObj.Add(cloneBall);
