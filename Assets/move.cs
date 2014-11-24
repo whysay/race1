@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using System.ServiceModel;
+using System.IO;
+using System.Net;
+//using System.ServiceModel;
 
 public class move : MonoBehaviour
 {
@@ -56,7 +58,7 @@ public class move : MonoBehaviour
     public bool[] m_bArrived = { false, false, false, false, false, false };
 
     public List<GameObject> m_listObj = new List<GameObject>();
-    HelloWorldServiceClient m_client;
+    //HelloWorldServiceClient m_client;
 
 
     void Start()
@@ -85,11 +87,33 @@ public class move : MonoBehaviour
         m_targetPos[3] = new Vector3(70.0f, 0.0f, 110.0f);
         m_targetPos[4] = new Vector3(130.0f, 0.0f, 110.0f);
         m_targetPos[5] = new Vector3(140.0f, 0.0f, 130.0f);
-        m_client = new HelloWorldServiceClient(new BasicHttpBinding(), new EndpointAddress(@"http://localhost:1054/HostDevServer/HelloWorldService.svc?singleWsdl"));
-        var log = m_client.GetMessage("dfj");
-        Debug.Log(log);
+        //m_client = new HelloWorldServiceClient(new BasicHttpBinding(), new EndpointAddress(@"http://localhost:1054/HostDevServer/HelloWorldService.svc?singleWsdl"));
+        //var log = m_client.GetMessage("dfj");
+        //Debug.Log(log);
 
+        WWW ret = GET("http://localhost:1234/HelloWorldService/data2/10");
     }
+
+    public WWW GET(string url)
+    {
+        WWW www = new WWW(url);
+        StartCoroutine(WaitForRequest(www));
+        return www;
+    }
+
+    private IEnumerator WaitForRequest(WWW www)
+    {
+        yield return www;
+        // check for errors 
+        if (www.error == null)
+        {
+            Debug.Log("WWW Ok!: " + www.text);
+        }
+        else
+        {
+            Debug.Log("WWW Error: " + www.error);
+        }
+    } 
 
     //bool isCurve = false;
     float m_rotateWheelRad = 0.0f;
@@ -148,8 +172,8 @@ public class move : MonoBehaviour
         m_ballCreateTime += Time.deltaTime;
         if (2.0f < m_ballCreateTime)
         {
-            var log = m_client.GetTestContact("dfj");
-            Debug.Log(log.Phone);
+            //var log = m_client.GetTestContact("dfj");
+            //Debug.Log(log.Phone);
             m_ballCreateTime = 0.0f;
             GameObject cloneBall = (GameObject)Instantiate(m_ball);
             m_listObj.Add(cloneBall);
